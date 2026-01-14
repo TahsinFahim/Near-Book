@@ -17,8 +17,7 @@
         ['data' => 'order_by', 'title' => 'Order'],
         ['data' => 'status', 'title' => 'Status', 'orderable' => false, 'searchable' => false],
         ['data' => 'action', 'title' => 'Action', 'orderable' => false, 'searchable' => false],
-    ]"
-/>
+    ]" />
 
 
 
@@ -26,26 +25,47 @@
 
 @push('scripts')
 <script>
-const menuCrud = {
-    title: 'Add Menu',
-    editTitle: 'Edit Menu',
-    url: "{{ url('menus') }}",
-    table: '#menu-table',
-    fields: [
-        { name: 'name', label: 'Name', type: 'text', required: true },
-        { name: 'url', label: 'URL', type: 'text' },
-        { name: 'icon', label: 'Icon', type: 'text' },
-        { name: 'order_by', label: 'Order', type: 'number' },
-        {
-            name: 'status',
-            label: 'Status',
-            type: 'select',
-            options: [
-                { value: 1, label: 'Active' },
-                { value: 0, label: 'Inactive' }
-            ]
-        }
-    ]
-};
+    const menuCrud = {
+        title: 'Add Menu',
+        editTitle: 'Edit Menu',
+        url: "{{ url('menus') }}",
+        table: '#menu-table',
+        fields: [{
+                name: 'name',
+                label: 'Name',
+                type: 'text',
+                required: true
+            },
+            {
+                name: 'url',
+                label: 'URL',
+                type: 'text'
+            },
+            {
+                name: 'icon',
+                label: 'Icon',
+                type: 'text'
+            },
+            {
+                name: 'order_by',
+                label: 'Order',
+                type: 'number'
+            },
+            {
+                name: 'status',
+                label: 'Status',
+                type: 'select',
+                options: [{
+                        value: 1,
+                        label: 'Active'
+                    },
+                    {
+                        value: 0,
+                        label: 'Inactive'
+                    }
+                ]
+            }
+        ]
+    };
 </script>
 @endpush

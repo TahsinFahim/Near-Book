@@ -36,3 +36,9 @@
 .custom-scrollbar::-webkit-scrollbar-corner {
     background: #1a202c; /* Corner color */
 }
+
+@media (min-width: 1024px) {
+    #sidebar {
+        z-index: 30;
+    }
+}

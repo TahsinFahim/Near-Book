@@ -9,19 +9,51 @@
     'addButtonAction' => '',
     'pageLength' => 10,
     'lengthMenu' => [10, 25, 50, 100],
-    'showExportButtons' => true
+    'showExportButtons' => true,
+    'filters' => [
+        ['name' => 'filter', 'label' => 'Filter', 'options' => [
+            ['value' => '', 'label' => 'All'],
+            ['value' => 'active', 'label' => 'Active'],
+            ['value' => 'inactive', 'label' => 'Inactive'],
+            ['value' => 'latest', 'label' => 'Latest'],
+            ['value' => 'oldest', 'label' => 'Oldest'],
+        ], 'default' => '']
+    ]
 ])
 
 <div class="w-full">
     @if($showHeader)
-    <div class="flex justify-between mb-4">
+    <div class="flex justify-between mb-4 flex-wrap gap-4">
         <h1 class="font-bold text-2xl">{{ $title }}</h1>
-        @if($showAddButton)
-        <button onclick="{{ $addButtonAction }}"
-            class="px-4 py-2 bg-[#003366] text-white rounded">
-            {{ $addButtonText }}
-        </button>
-        @endif
+        
+        <div class="flex items-center space-x-4 flex-wrap gap-3">
+            {{-- Dynamic Filters --}}
+            @if($filters && count($filters) > 0)
+            <div class="flex items-center space-x-3 flex-wrap gap-3">
+                @foreach($filters as $f)
+                    <div class="flex items-center">
+                        <label for="filter-{{ $tableId }}-{{ $f['name'] }}" class="mr-2 text-gray-700">{{ $f['label'] }}:</label>
+                        <select id="filter-{{ $tableId }}-{{ $f['name'] }}" 
+                                class="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent">
+                            @foreach($f['options'] as $option)
+                                <option value="{{ $option['value'] }}" {{ ($f['default'] ?? '') == $option['value'] ? 'selected' : '' }}>
+                                    {{ $option['label'] }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endforeach
+            </div>
+            @endif
+            
+            {{-- Add Button --}}
+            @if($showAddButton)
+            <button onclick="{{ $addButtonAction }}"
+                class="px-4 py-2 bg-[#003366] text-white rounded hover:bg-[#002244] transition">
+                {{ $addButtonText }}
+            </button>
+            @endif
+        </div>
     </div>
     @endif
 
@@ -44,7 +76,14 @@
         var table = $('#{{ $tableId }}').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ $ajaxRoute }}",
+            ajax: {
+                url: "{{ $ajaxRoute }}",
+                data: function(d) {
+                    @foreach($filters as $f)
+                        d["{{ $f['name'] }}"] = $('#filter-{{ $tableId }}-{{ $f['name'] }}').val();
+                    @endforeach
+                }
+            },
             pageLength: {{ $pageLength }},
             lengthMenu: @json($lengthMenu),
             dom: '<"flex justify-between items-center mb-4"lBf>rtip',
@@ -75,7 +114,14 @@
             columns: @json($columns)
         });
 
-        // Reload function
+        // Trigger reload for all filters
+        @foreach($filters as $f)
+            $('#filter-{{ $tableId }}-{{ $f['name'] }}').change(function() {
+                table.ajax.reload();
+            });
+        @endforeach
+
+        // Global reload function
         window['reload{{ \Illuminate\Support\Str::studly($tableId) }}'] = function() {
             table.ajax.reload(null, false);
         };

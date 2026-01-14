@@ -1,34 +1,41 @@
 <div id="crudModal"
-    class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+    class="hidden fixed inset-0 z-50 flex items-start md:items-center justify-center bg-gray-400/60 backdrop-blur-sm transition-all duration-300 ease-out"
     onclick="closeCrudModal()">
 
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative"
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-xl p-8 relative transform transition-all duration-300 ease-out translate-y-[-20px] opacity-0 max-h-[90vh] overflow-y-auto"
+        id="crudModalContent"
         onclick="event.stopPropagation()">
 
-        <!-- Close -->
+        <!-- Close Button -->
         <button type="button"
-            class="absolute top-3 right-3 text-gray-500"
+            class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-200"
             onclick="closeCrudModal()">
-            <i class="fas fa-times"></i>
+            <i class="fas fa-times text-lg"></i>
         </button>
 
-        <h2 id="crudModalTitle" class="text-xl font-semibold mb-4"></h2>
+        <!-- Modal Header -->
+        <div class="mb-8">
+            <h2 id="crudModalTitle" class="text-2xl font-bold text-gray-800 mb-2"></h2>
+            <div class="h-1 w-12 bg-gradient-to-r from-[#003366] to-[#0066cc] rounded-full"></div>
+        </div>
 
-        <form id="crudForm">
+        <!-- Form -->
+        <form id="crudForm" class="space-y-6">
             @csrf
             <input type="hidden" id="record_id">
 
-            <div id="crudFields"></div>
+            <div id="crudFields" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
 
-            <div class="flex justify-end gap-2 mt-4">
+            <!-- Action Buttons -->
+            <div class="flex justify-end gap-3 pt-6 border-t border-gray-100">
                 <button type="button"
                     onclick="closeCrudModal()"
-                    class="px-4 py-2 bg-gray-300 rounded">
+                    class="px-5 py-2.5 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]">
                     Cancel
                 </button>
                 <button type="submit"
                     id="crudSubmitBtn"
-                    class="px-4 py-2 bg-[#003366] text-white rounded">
+                    class="px-5 py-2.5 text-white bg-gradient-to-r from-[#003366] to-[#0066cc] hover:from-[#002244] hover:to-[#0055aa] rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]">
                     Save
                 </button>
             </div>
@@ -36,22 +43,17 @@
     </div>
 </div>
 
-
 <script>
-    /**
-     * GLOBAL CRUD CONFIG
-     */
     let crudConfig = {
         method: 'POST',
         url: '',
         table: '',
         editId: null,
+        isSpecialUrl:false,
+        specialUrl: '',
         fields: []
     };
 
-    /**
-     * OPEN ADD MODAL
-     */
     function openAddModal(config) {
         crudConfig = {
             ...config,
@@ -61,16 +63,18 @@
 
         $('#crudForm')[0].reset();
         $('#record_id').val('');
-        $('#crudModalTitle').text(config.title || 'Add');
+        $('#crudModalTitle').text(config.title || 'Add New Record');
         $('#crudSubmitBtn').text('Add');
 
         renderCrudFields(config.fields);
+        
+        // Show with animation
         $('#crudModal').removeClass('hidden');
+        setTimeout(() => {
+            $('#crudModalContent').removeClass('translate-y-[-20px] opacity-0').addClass('translate-y-0 opacity-100');
+        }, 10);
     }
 
-    /**
-     * OPEN EDIT MODAL
-     */
     function openEditModal(config, data) {
         crudConfig = {
             ...config,
@@ -78,88 +82,229 @@
             editId: data.id
         };
 
-        $('#crudModalTitle').text(config.editTitle || 'Edit');
+        $('#crudModalTitle').text(config.editTitle || 'Edit Record');
         $('#crudSubmitBtn').text('Update');
 
         renderCrudFields(config.fields, data);
+        
+        // Show with animation
         $('#crudModal').removeClass('hidden');
+        setTimeout(() => {
+            $('#crudModalContent').removeClass('translate-y-[-20px] opacity-0').addClass('translate-y-0 opacity-100');
+        }, 10);
     }
 
-    /**
-     * CLOSE MODAL
-     */
     function closeCrudModal() {
-        $('#crudModal').addClass('hidden');
+        // Animate out
+        $('#crudModalContent').removeClass('translate-y-0 opacity-100').addClass('translate-y-[-20px] opacity-0');
+        
+        setTimeout(() => {
+            $('#crudModal').addClass('hidden');
+        }, 300);
     }
 
-    /**
-     * RENDER DYNAMIC FIELDS
-     */
-    function renderCrudFields(fields, data = {}) {
-        let html = '';
+  function renderCrudFields(fields, data = {}) {
+    let html = '';
 
-        fields.forEach(field => {
-            let value = data[field.name] ?? '';
+    fields.forEach(field => {
+        // Use data value first, then field.value, then empty string
+       let value = data[field.name] ?? field.value ?? '';
+        const fieldId = `field_${field.name}`;
 
-            if (field.type === 'select') {
-                html += `
-                    <div class="mb-4">
-                        <label class="block mb-1">${field.label}</label>
-                        <select name="${field.name}"
-                            class="w-full px-3 py-2 border rounded">
-                            ${field.options.map(opt =>
-                                `<option value="${opt.value}" ${opt.value == value ? 'selected' : ''}>
-                                    ${opt.label}
-                                </option>`
-                            ).join('')}
-                        </select>
-                    </div>
-                `;
-            } else {
-                html += `
-                    <div class="mb-4">
-                        <label class="block mb-1">${field.label}</label>
-                        <input
-                            type="${field.type}"
-                            name="${field.name}"
-                            value="${value}"
-                            class="w-full px-3 py-2 border rounded"
-                            ${field.required ? 'required' : ''}
-                        >
-                    </div>
-                `;
-            }
-        });
+        // Condition: Skip menu_id field for PUT method (edit)
+        if (field.name === 'menu_id' && crudConfig.method === 'PUT') {
+            return; // Skip this field entirely for edit
+        }
 
-        $('#crudFields').html(html);
-    }
+        // Handle hidden fields separately
+        if (field.type === 'hidden') {
+            html += `<input class="hidden" type="hidden" id="${fieldId}" name="${field.name}" value="${value}">`;
+            return; // Skip to next field
+        }
 
-    /**
-     * SUBMIT FORM (AJAX)
-     */
+        // Textarea full width
+        if (field.type === 'textarea') {
+            html += `
+                <div class="col-span-1 md:col-span-2">
+                    <label for="${fieldId}" class="block mb-2 font-medium text-gray-700">
+                        ${field.label}
+                        ${field.required ? '<span class="text-red-500 ml-1">*</span>' : ''}
+                    </label>
+                    <textarea
+                        id="${fieldId}"
+                        name="${field.name}"
+                        rows="${field.rows || 4}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-[#003366] focus:ring-2 focus:ring-[#003366]/20 focus:outline-none transition-all duration-200 resize-y"
+                        ${field.required ? 'required' : ''}
+                        ${field.placeholder ? `placeholder="${field.placeholder}"` : ''}>${value}</textarea>
+                </div>
+            `;
+        }
+        // Select field
+        else if (field.type === 'select') {
+            html += `
+                <div>
+                    <label for="${fieldId}" class="block mb-2 font-medium text-gray-700">
+                        ${field.label}
+                        ${field.required ? '<span class="text-red-500 ml-1">*</span>' : ''}
+                    </label>
+                    <select 
+                        id="${fieldId}"
+                        name="${field.name}" 
+                        class="form-control mt-1 p-2 border border-gray-300 rounded-md w-full"
+                        ${field.required ? 'required' : ''}>
+                        ${field.placeholder ? `<option value="">${field.placeholder}</option>` : ''}
+                        ${field.options.map(opt =>
+                            `<option value="${opt.value}" ${opt.value == value ? 'selected' : ''}>
+                                ${opt.label}
+                            </option>`).join('')}
+                    </select>
+                </div>
+            `;
+        }
+        // Date field
+        else if (field.type === 'date') {
+            html += `
+                <div>
+                    <label for="${fieldId}" class="block mb-2 font-medium text-gray-700">
+                        ${field.label}
+                        ${field.required ? '<span class="text-red-500 ml-1">*</span>' : ''}
+                    </label>
+                    <input type="date" 
+                        id="${fieldId}"
+                        name="${field.name}" 
+                        value="${value}"
+                        class="form-control mt-1 p-2 border border-gray-300 rounded-md w-full"
+                        ${field.required ? 'required' : ''}>
+                </div>
+            `;
+        }
+        // Email field
+        else if (field.type === 'email') {
+            html += `
+                <div>
+                    <label for="${fieldId}" class="block mb-2 font-medium text-gray-700">
+                        ${field.label}
+                        ${field.required ? '<span class="text-red-500 ml-1">*</span>' : ''}
+                    </label>
+                    <input type="email" 
+                        id="${fieldId}"
+                        name="${field.name}" 
+                        value="${value}"
+                        class="form-control mt-1 p-2 border border-gray-300 rounded-md w-full"
+                        ${field.required ? 'required' : ''}
+                        ${field.placeholder ? `placeholder="${field.placeholder}"` : ''}>
+                </div>
+            `;
+        }
+        // Number field
+        else if (field.type === 'number') {
+            html += `
+                <div>
+                    <label for="${fieldId}" class="block mb-2 font-medium text-gray-700">
+                        ${field.label}
+                        ${field.required ? '<span class="text-red-500 ml-1">*</span>' : ''}
+                    </label>
+                    <input type="number" 
+                        id="${fieldId}"
+                        name="${field.name}" 
+                        value="${value}"
+                        class="form-control mt-1 p-2 border border-gray-300 rounded-md w-full"
+                        ${field.min !== undefined ? `min="${field.min}"` : ''}
+                        ${field.max !== undefined ? `max="${field.max}"` : ''}
+                        ${field.step !== undefined ? `step="${field.step}"` : ''}
+                        ${field.required ? 'required' : ''}
+                        ${field.placeholder ? `placeholder="${field.placeholder}"` : ''}>
+                </div>
+            `;
+        }
+        // Default input field
+        else {
+            html += `
+                <div>
+                    <label for="${fieldId}" class="block mb-2 font-medium text-gray-700">
+                        ${field.label}
+                        ${field.required ? '<span class="text-red-500 ml-1">*</span>' : ''}
+                    </label>
+                    <input type="${field.type}" 
+                        id="${fieldId}"
+                        name="${field.name}" 
+                        value="${value}"
+                        class="form-control mt-1 p-2 border border-gray-300 rounded-md w-full"
+                        ${field.required ? 'required' : ''}
+                        ${field.placeholder ? `placeholder="${field.placeholder}"` : ''}
+                        ${field.pattern ? `pattern="${field.pattern}"` : ''}
+                        ${field.maxlength ? `maxlength="${field.maxlength}"` : ''}>
+                </div>
+            `;
+        }
+    });
+
+    $('#crudFields').html(html);
+    
+    // Focus first input after render
+    setTimeout(() => {
+        $('#crudFields input:not([type="hidden"]), #crudFields select, #crudFields textarea').first().focus();
+    }, 100);
+}
+
     $(document).on('submit', '#crudForm', function (e) {
         e.preventDefault();
+
+        const submitBtn = $('#crudSubmitBtn');
+        const originalText = submitBtn.text();
+        
+        // Show loading state
+        submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>Saving...');
 
         let url = crudConfig.method === 'POST'
             ? crudConfig.url
             : `${crudConfig.url}/${crudConfig.editId}`;
+        // if(isSpecialUrl){
+        //     url = crudConfig.method === 'POST'
+        //     ? crudConfig.url
+        //     : `${crudConfig.specialUrl}/${crudConfig.editId}`;
+        // }
 
         $.ajax({
             url: url,
             type: crudConfig.method,
             data: $(this).serialize(),
             success: function (res) {
+                submitBtn.prop('disabled', false).text(originalText);
                 closeCrudModal();
 
                 if (crudConfig.table) {
                     $(crudConfig.table).DataTable().ajax.reload(null, false);
                 }
 
-                showToast(res.message || 'Saved successfully');
+                showToast(res.message || 'Operation completed successfully', 'success');
             },
-            error: function () {
-                showError('Operation failed');
+            error: function (xhr) {
+                submitBtn.prop('disabled', false).text(originalText);
+                
+                const errorMessage = xhr.responseJSON?.message || 'Operation failed. Please try again.';
+                showError(errorMessage);
+                
+                // Highlight error fields
+                if (xhr.responseJSON?.errors) {
+                    Object.keys(xhr.responseJSON.errors).forEach(field => {
+                        $(`[name="${field}"]`).addClass('border-red-500');
+                    });
+                }
             }
         });
+    });
+
+    // Remove error styling on focus
+    $(document).on('focus', '#crudFields input, #crudFields select, #crudFields textarea', function() {
+        $(this).removeClass('border-red-500');
+    });
+
+    // Close modal on Escape key
+    $(document).on('keydown', function(e) {
+        if (e.key === 'Escape' && !$('#crudModal').hasClass('hidden')) {
+            closeCrudModal();
+        }
     });
 </script>
