@@ -4,6 +4,7 @@
 @section('content')
 
 <div id="main-content" class="transition-all duration-300">
+    
     <x-data-table
         table-id="book-table"
         title="Book Management"
@@ -35,7 +36,7 @@
             ['value' => 'inactive', 'label' => 'Inactive'],
             ['value' => 'latest', 'label' => 'Latest'],
             ['value' => 'oldest', 'label' => 'Oldest'],
-        ], 'default' => '']
+        ], 'default' => ''],
         ]" />
 </div>
 
@@ -61,12 +62,38 @@
                 required: true
             },
             {
-                name: 'author_id',
-                label: 'Author',
-                type: 'select',
-                required: true,
-                options: @json($authors - > map(fn($author) => ['value' => $author - > id, 'label' => $author - > name]))
-            },
+    name: 'author_id',
+    label: 'Author',
+    type: 'select',
+    required: true,
+    placeholder: 'Select an Author',
+    options: @json($authors->map(fn($author) => [
+        'value' => $author->id,
+        'label' => $author->name
+    ]))
+},
+{
+    name: 'category_id',
+    label: 'Category',
+    type: 'select',
+    required: true,
+    placeholder: 'Select Category',
+    options: @json($categories->map(fn($category) => [
+        'value' => $category->id,
+        'label' => $category->name
+    ]))
+},
+
+
+{
+    name: 'sub_category_id',
+    label: 'Sub Category',
+    type: 'select',
+    required: true,
+    options: [] // initially empty
+},
+
+
             {
                 name: 'isbn',
                 label: 'ISBN',
@@ -86,7 +113,7 @@
             {
                 name: 'cover_image',
                 label: 'Cover Image URL',
-                type: 'text'
+                type: 'file'
             },
             {
                 name: 'short_description',
@@ -135,4 +162,52 @@
         ]
     };
 </script>
+
+<script>
+    function loadSubCategories(categoryId, selectedId = null) {
+        const subCategorySelect = $('#field_sub_category_id');
+
+        subCategorySelect.html('<option value="">Loading...</option>');
+
+        if (!categoryId) {
+            subCategorySelect.html('<option value="">Select Category First</option>');
+            return;
+        }
+
+        $.ajax({
+            url: `/categories/${categoryId}/sub-categories`,
+            type: 'GET',
+            success: function (res) {
+                let options = '<option value="">Select Sub Category</option>';
+
+                res.forEach(item => {
+                    const selected = selectedId == item.id ? 'selected' : '';
+                    options += `<option value="${item.id}" ${selected}>${item.name}</option>`;
+                });
+
+                subCategorySelect.html(options);
+            },
+            error: function () {
+                subCategorySelect.html('<option value="">Failed to load</option>');
+            }
+        });
+    }
+
+    // Category change
+    $(document).on('change', '#field_category_id', function () {
+        loadSubCategories($(this).val());
+    });
+
+    // 🔥 Page load (Edit mode support)
+    $(document).ready(function () {
+        const categoryId = $('#field_category_id').val();
+
+        if (categoryId && selectedSubCategoryId) {
+            loadSubCategories(categoryId, selectedSubCategoryId);
+        }
+    });
+</script>
+
+
+
 @endpush

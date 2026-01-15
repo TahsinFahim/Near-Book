@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Category;
+use App\Models\SubCategory;
 use Yajra\DataTables\Facades\DataTables;
 
 class CategoryController extends Controller
@@ -13,6 +14,16 @@ class CategoryController extends Controller
     {
         return view('Modules.categories.index');
     }
+
+    public function subCategories($categoryId)
+{
+    return response()->json(
+        SubCategory::where('category_id', $categoryId)
+            ->select('id', 'name')
+            ->get()
+    );
+}
+
 
     // Fetch data for DataTables
     public function data(Request $request)

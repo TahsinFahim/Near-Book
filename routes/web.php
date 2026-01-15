@@ -69,6 +69,8 @@ Route::middleware('auth')->group(function () {
         Route::put('/{book}', [BookController::class, 'update'])->name('books.update');
         Route::delete('/{book}', [BookController::class, 'destroy'])->name('books.destroy');
     });
+    Route::get('/categories/{category}/sub-categories', [CategoryController::class, 'subCategories']);
+
 });
 
 require __DIR__ . '/auth.php';

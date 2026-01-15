@@ -25,6 +25,8 @@ class Book extends Model
         'is_active',
         'meta_title',
         'meta_description',
+        'category_id',
+        'sub_category_id',
     ];
 
     // Casts for proper data types
