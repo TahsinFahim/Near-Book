@@ -90,7 +90,7 @@
                                     @endforeach
                                 </div>
                             </div>
-                        @else
+                        @elseif($menu->url)
                             <!-- Single Menu Item -->
                             <a href="{{ url($menu->url) }}"
                                class="sidebar-item group block px-3 py-3 rounded-lg hover:bg-gray-700/50 {{ $isActive ? 'bg-gray-700/30 border-l-4 border-blue-500' : '' }} transition-all duration-200"
@@ -104,6 +104,19 @@
                                     </span>
                                 </div>
                             </a>
+                        @else
+                            <div
+                               class="sidebar-item group block px-3 py-3 rounded-lg hover:bg-gray-700/50 {{ $isActive ? 'bg-gray-700/30 border-l-4 border-blue-500' : '' }} transition-all duration-200"
+                               aria-current="{{ $isActive ? 'page' : 'false' }}">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg bg-gray-700/50 flex items-center justify-center group-hover:bg-gray-600/50 transition-colors duration-200">
+                                        <i class="{{ $menu->icon }} text-gray-300 text-sm"></i>
+                                    </div>
+                                    <span class="menu-text font-medium whitespace-nowrap transition-all duration-300">
+                                        {{ $menu->name }}
+                                    </span>
+                                </div>
+                            </div>
                         @endif
                     </li>
                 @endforeach

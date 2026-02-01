@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\SubmenuContorller;
+use App\Http\Controllers\PublisherController;
+use App\Http\Controllers\SiteLogoController;
+use App\Http\Controllers\ContactInfoController;
+use App\Http\Controllers\BannerController;
+use App\Http\Controllers\TopNavbarController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -70,6 +75,48 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{book}', [BookController::class, 'destroy'])->name('books.destroy');
     });
     Route::get('/categories/{category}/sub-categories', [CategoryController::class, 'subCategories']);
+
+    Route::prefix('publishers')->name('publishers.')->group(function () {
+        Route::get('/', [PublisherController::class, 'index'])->name('index');
+        Route::get('/data', [PublisherController::class, 'data'])->name('data');
+        Route::post('/', [PublisherController::class, 'store'])->name('store');
+        Route::put('/{publisher}', [PublisherController::class, 'update'])->name('update');
+        Route::delete('/{publisher}', [PublisherController::class, 'destroy'])->name('destroy');
+});
+
+  Route::prefix('site-logo')->name('site-logo.')->group(function () {
+        Route::get('/', [SiteLogoController::class, 'index'])->name('index');
+        Route::get('/data', [SiteLogoController::class, 'data'])->name('data');
+        Route::post('/', [SiteLogoController::class, 'store'])->name('store');
+        Route::put('/{siteLogo}', [SiteLogoController::class, 'update'])->name('update');
+        Route::delete('/{siteLogo}', [SiteLogoController::class, 'destroy'])->name('destroy');
+
+});
+
+  Route::prefix('contact-info')->name('contact-info.')->group(function () {
+       Route::get('/', [ContactInfoController::class, 'index'])->name('index');
+        Route::get('/data', [ContactInfoController::class, 'data'])->name('data');
+        Route::post('/', [ContactInfoController::class, 'store'])->name('store');
+        Route::put('/{contactInfo}', [ContactInfoController::class, 'update'])->name('update');
+        Route::delete('/{contactInfo}', [ContactInfoController::class, 'destroy'])->name('destroy');
+});
+
+  Route::prefix('banners')->name('banners.')->group(function () {
+       Route::get('/', [BannerController::class, 'index'])->name('index');
+        Route::get('/data', [BannerController::class, 'data'])->name('data');
+        Route::post('/', [BannerController::class, 'store'])->name('store');
+        Route::put('/{banner}', [BannerController::class, 'update'])->name('update');
+        Route::delete('/{banner}', [BannerController::class, 'destroy'])->name('destroy');
+
+});
+
+  Route::prefix('top-navbar')->name('top-navbar.')->group(function () {
+       Route::get('/', [TopNavbarController::class, 'index'])->name('index');
+        Route::get('/data', [TopNavbarController::class, 'data'])->name('data');
+        Route::post('/', [TopNavbarController::class, 'store'])->name('store');
+        Route::put('/{topNavbar}', [TopNavbarController::class, 'update'])->name('update');
+        Route::delete('/{topNavbar}', [TopNavbarController::class, 'destroy'])->name('destroy');
+});
 
 });
 
