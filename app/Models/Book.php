@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,7 +8,6 @@ class Book extends Model
 {
     use HasFactory;
 
-    // Mass assignable fields
     protected $fillable = [
         'title',
         'slug',
@@ -21,27 +19,66 @@ class Book extends Model
         'short_description',
         'description',
         'publication_date',
-        'publisher',
+        'publisher_id',
         'is_active',
         'meta_title',
         'meta_description',
         'category_id',
         'sub_category_id',
+        'discount_parcentage',
+        'pdf_price',
     ];
 
-    // Casts for proper data types
     protected $casts = [
-        'price' => 'decimal:2',
-        'stock' => 'integer',
+        'price'            => 'decimal:2',
+        'pdf_price'        => 'decimal:2',
+        'stock'            => 'integer',
+        'is_active'        => 'boolean',
         'publication_date' => 'date',
-      
     ];
 
-    /**
-     * Relationship: Book belongs to an Author
-     */
+    // ── Relationships ────────────────────────────────────────────────────────
+
     public function author()
     {
         return $this->belongsTo(Author::class);
+    }
+
+    public function publisher()
+    {
+        return $this->belongsTo(Publisher::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function subCategory()
+    {
+        return $this->belongsTo(SubCategory::class);
+    }
+
+    // ── Scopes ───────────────────────────────────────────────────────────────
+
+    /**
+     * Only return active books
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Search across title, isbn, slug, short_description
+     */
+    public function scopeSearch($query, string $term)
+    {
+        return $query->where(function ($q) use ($term) {
+            $q->where('title',              'LIKE', "%{$term}%")
+              ->orWhere('isbn',             'LIKE', "%{$term}%")
+              ->orWhere('slug',             'LIKE', "%{$term}%")
+              ->orWhere('short_description','LIKE', "%{$term}%");
+        });
     }
 }

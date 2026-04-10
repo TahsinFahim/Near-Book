@@ -106,6 +106,9 @@ class CategoryController extends Controller
             'slug'        => 'nullable|string|max:255',
             'description' => 'nullable|string|max:1000',
             'is_active'   => 'required|boolean',
+            'serial'      => 'nullable|integer',
+            'homepage_serial' => 'nullable|integer',
+            'is_homepage' => 'nullable|boolean'
         ]);
 
         Category::create($request->all());
@@ -121,6 +124,9 @@ class CategoryController extends Controller
             'slug'        => 'nullable|string|max:255',
             'description' => 'nullable|string|max:1000',
             'is_active'   => 'required|boolean',
+            'serial'      => 'nullable|integer',
+            'homepage_serial' => 'nullable|integer',
+            'is_homepage' => 'nullable|boolean'
         ]);
 
         $category->update($request->all());

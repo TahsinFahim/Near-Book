@@ -13,10 +13,12 @@
         add-button-action="openAddModal(bookCrud)"
         :columns="[
             ['data' => 'DT_RowIndex', 'title' => '#', 'orderable' => false, 'searchable' => false],
+            ['data' => 'cover_image', 'title' => 'Cover Image', 'orderable' => false, 'searchable' => false],
             ['data' => 'title', 'title' => 'Title'],
             ['data' => 'slug', 'title' => 'Slug'],
             ['data' => 'author', 'title' => 'Author'],
             ['data' => 'price', 'title' => 'Price'],
+            ['data' => 'pdf_price', 'title' => 'PDF Price'],
             ['data' => 'stock', 'title' => 'Stock'],
             ['data' => 'status', 'title' => 'Status', 'orderable' => false, 'searchable' => false],
             ['data' => 'action', 'title' => 'Action', 'orderable' => false, 'searchable' => false],
@@ -65,7 +67,6 @@
     name: 'author_id',
     label: 'Author',
     type: 'select',
-    required: true,
     placeholder: 'Select an Author',
     options: @json($authors->map(fn($author) => [
         'value' => $author->id,
@@ -106,6 +107,18 @@
                 step: '0.01'
             },
             {
+                name: 'pdf_price',
+                label: 'PDF Price',
+                type: 'number',
+                step: '0.01'
+            },
+            {
+                name: 'discount_parcentage',
+                label: 'Discount Percentage',
+                type: 'number',
+                step: '0.01'
+            },
+            {
                 name: 'stock',
                 label: 'Stock',
                 type: 'number'
@@ -130,6 +143,17 @@
                 label: 'Publication Date',
                 type: 'date'
             },
+            {
+    name: 'publisher_id',
+    label: 'Publisher',
+    type: 'select',
+    required: false,
+    placeholder: 'Select a Publisher',
+    options: @json($publishers->map(fn($publisher) => [
+        'value' => $publisher->id,
+        'label' => $publisher->name
+    ]))
+},
             {
                 name: 'publisher',
                 label: 'Publisher',

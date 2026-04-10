@@ -75,6 +75,7 @@ function openAddModal(config) {
 }
 
 function openEditModal(config, data) {
+
     crudConfig = {
         ...config,
         method: 'PUT',
@@ -84,15 +85,15 @@ function openEditModal(config, data) {
     $('#crudModalTitle').text(config.editTitle || 'Edit Record');
     $('#crudSubmitBtn').text('Update');
 
+    // 🔥 IMPORTANT: set selected subcategory
+    selectedSubCategoryId = data.sub_category_id;
+
+    // Render fields first
     renderCrudFields(config.fields, data);
 
+    // 🔥 IMPORTANT: load subcategory AFTER render
     if (data.category_id) {
-        $('#field_category_id').val(data.category_id);
-
-        loadSubCategories(
-            data.category_id,
-            data.sub_category_id // <-- this selects sub-category
-        );
+        loadSubCategories(data.category_id, selectedSubCategoryId);
     }
 
     $('#crudModal').removeClass('hidden');

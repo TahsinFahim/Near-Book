@@ -13,6 +13,7 @@ use App\Http\Controllers\SiteLogoController;
 use App\Http\Controllers\ContactInfoController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\TopNavbarController;
+use App\Http\Controllers\DepartmentController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -118,6 +119,28 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{topNavbar}', [TopNavbarController::class, 'destroy'])->name('destroy');
 });
 
+
+
+Route::prefix('departments')->group(function () {
+
+    Route::get('/', [DepartmentController::class, 'index'])
+        ->name('departments.index');
+
+    Route::get('/data', [DepartmentController::class, 'data'])
+        ->name('departments.data');
+
+    Route::post('/', [DepartmentController::class, 'store'])
+        ->name('departments.store');
+
+    Route::put('/{department}', [DepartmentController::class, 'update'])
+        ->name('departments.update');
+
+    Route::delete('/{department}', [DepartmentController::class, 'destroy'])
+        ->name('departments.destroy');
+
+});
+
 });
 
 require __DIR__ . '/auth.php';
+require __DIR__ . '/Web/university.php';

@@ -85,37 +85,42 @@ class BannerController extends Controller
     }
 
     public function update(Request $request, Banner $banner)
-    {
-        $validated = $request->validate([
-            'title'      => 'nullable|string|max:255',
-            'subtitle'   => 'nullable|string|max:255',
-            'link'       => 'nullable|url|max:255',
-            'image'      => 'nullable|image|mimes:jpeg,jpg,png,webp,svg|max:4096',
-            'is_active'  => 'required|boolean',
-        ]);
+{
 
-       
+    $validated = $request->validate([
+        'title'      => 'nullable|string|max:255',
+        'subtitle'   => 'nullable|string|max:255',
+        'link'       => 'nullable|url|max:255',
+        'image'      => 'nullable|image|mimes:jpeg,jpg,png,webp,svg|max:4096',
+        'is_active'  => 'required|boolean',
+    ]);
 
-        if ($request->hasFile('image')) {
-            // delete old image
-            if ($banner->image_path && Storage::disk('public')->exists(str_replace('storage/', '', $banner->image_path))) {
-                Storage::disk('public')->delete(str_replace('storage/', '', $banner->image_path));
-            }
 
-            $file = $request->file('image');
-            $filename = time() . '_banner.' . $file->getClientOriginalExtension();
-            $file->storeAs('banners', $filename, 'public');
 
-            $validated['image_path'] = 'storage/banners/' . $filename;
+    // Check if new image uploaded
+    if ($request->hasFile('image_path')) {
+
+        // Delete old image if exists
+        if ($banner->image_path && Storage::disk('public')->exists(str_replace('storage/', '', $banner->image_path))) {
+            Storage::disk('public')->delete(str_replace('storage/', '', $banner->image_path));
         }
 
-        $banner->update($validated);
+        // Store new image
+        $file = $request->file('image_path');
+        $filename = time() . '_banner.' . $file->getClientOriginalExtension();
+        $file->storeAs('banners', $filename, 'public');
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Banner updated successfully'
-        ]);
+        $validated['image_path'] = 'storage/banners/' . $filename;
     }
+
+    // Update banner
+    $banner->update($validated);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Banner updated successfully'
+    ]);
+}
 
     public function destroy(Banner $banner)
     {

@@ -14,9 +14,13 @@
         ['data' => 'name', 'title' => 'Name'],
         ['data' => 'slug', 'title' => 'Slug'],
         ['data' => 'description', 'title' => 'Description'],
+        ['data' => 'serial', 'title' => 'Serial'],
+        ['data' => 'is_homepage', 'title' => 'Homepage', 'orderable' => false, 'searchable' => false],
+        ['data' => 'homepage_serial', 'title' => 'Homepage Serial'],
         ['data' => 'status', 'title' => 'Status', 'orderable' => false, 'searchable' => false],
         ['data' => 'action', 'title' => 'Action', 'orderable' => false, 'searchable' => false],
-    ]" />
+    ]"
+/>
 
 @endsection
 
@@ -43,6 +47,30 @@
                 name: 'description',
                 label: 'Description',
                 type: 'textarea'
+            },
+            {
+                name: 'serial',
+                label: 'Serial',
+                type: 'number',
+                required: true,
+                default: 0
+            },
+            {
+                name: 'is_homepage',
+                label: 'Show on Homepage',
+                type: 'select',
+                options: [
+                    { value: 1, label: 'Yes' },
+                    { value: 0, label: 'No' }
+                ],
+                default: 0
+            },
+            {
+                name: 'homepage_serial',
+                label: 'Homepage Serial',
+                type: 'number',
+                required: false,
+                default: null
             },
             {
                 name: 'is_active',

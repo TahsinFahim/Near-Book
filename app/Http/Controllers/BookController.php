@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Book;
 use App\Models\Category;
+use App\Models\Publisher;
 use App\Models\Author;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Str;
@@ -16,7 +17,9 @@ class BookController extends Controller
 
         $authors = Author::where('is_active', 1)->get(['id', 'name']);
         $categories = Category::where('is_active', 1)->get(['id', 'name']);
-        return view('Modules.books.index', compact('authors', 'categories'));
+        $publishers = Publisher::where('is_active', 1)->get(['id', 'name']);
+        
+        return view('Modules.books.index', compact('authors', 'categories', 'publishers'));
     }
 
 
@@ -55,6 +58,11 @@ class BookController extends Controller
 
         return DataTables::of($books)
             ->addIndexColumn()
+             ->addColumn('cover_image', function ($book) {
+    return '<img src="'.asset($book->cover_image).'" class="h-10">';
+})
+->rawColumns(['cover_image'])
+
             ->addColumn('author', fn($book) => $book->author?->name ?? 'N/A')
             ->addColumn('status', fn($book) => $book->is_active
                 ? '<span class="badge bg-success">Active</span>'
@@ -70,7 +78,7 @@ class BookController extends Controller
                 </div>
             ';
             })
-            ->rawColumns(['author', 'status', 'action'])
+            ->rawColumns(['cover_image', 'status', 'action'])
             ->make(true);
     }
 
@@ -80,9 +88,11 @@ class BookController extends Controller
         $validated = $request->validate([
             'title'             => 'required|string|max:255',
             'slug'              => 'required|string|max:255|unique:books,slug',
-            'author_id'         => 'required|exists:authors,id',
+            'author_id'         => 'nullable|exists:authors,id',
             'isbn'              => 'nullable|string|max:50',
+            'discount_parcentage' => 'nullable|numeric|min:0|max:100',
             'price'             => 'nullable|numeric',
+            'pdf_price'         => 'nullable|numeric',
             'stock'             => 'nullable|integer',
             'category_id'       => 'required|integer',
             'sub_category_id'    => 'required|integer',
@@ -90,7 +100,7 @@ class BookController extends Controller
             'short_description' => 'nullable|string',
             'description'       => 'nullable|string',
             'publication_date'  => 'nullable|date',
-            'publisher'         => 'nullable|string|max:255',
+            'publisher_id'         => 'nullable|exists:publishers,id',
             'is_active'         => 'required|boolean',
             'meta_title'        => 'nullable|string|max:255',
             'meta_description'  => 'nullable|string|max:255',
@@ -116,9 +126,11 @@ class BookController extends Controller
     $validated = $request->validate([
         'title'             => 'required|string|max:255',
         'slug'              => 'required|string|max:255|unique:books,slug,' . $book->id,
-        'author_id'         => 'required|exists:authors,id',
+        'author_id'         => 'nullable|exists:authors,id',
         'isbn'              => 'nullable|string|max:50',
+        'discount_parcentage' => 'nullable|numeric|min:0|max:100',
         'price'             => 'nullable|numeric',
+        'pdf_price'         => 'nullable|numeric',       
         'stock'             => 'nullable|integer',
         'category_id'       => 'required|integer',
         'sub_category_id'   => 'required|integer',
@@ -126,7 +138,7 @@ class BookController extends Controller
         'short_description' => 'nullable|string',
         'description'       => 'nullable|string',
         'publication_date'  => 'nullable|date',
-        'publisher'         => 'nullable|string|max:255',
+        'publisher_id'         => 'nullable|exists:publishers,id',
         'is_active'         => 'required|boolean',
         'meta_title'        => 'nullable|string|max:255',
         'meta_description'  => 'nullable|string|max:255',

@@ -38,7 +38,7 @@ class TopNavbarController extends Controller
 public function categoris()
 {
     $categories = Category::with('subCategories')->where('is_active', 1)
-        // ->orderBy('position', 'ASC')
+        ->orderBy('homepage_serial')
         ->get();
 
     return response()->json([
